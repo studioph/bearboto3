@@ -22,17 +22,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pylint.messages_control]
-max-line-size = 120
-
 disable = [
     "missing-module-docstring",
     "missing-function-docstring"
 ]
-
-[tool.pylint.MASTER]
-ignore-patterns = [
-    "tests/**/*.py"
-]
-
-[tool.black]
-line-length = 120
