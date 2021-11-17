@@ -24,7 +24,7 @@ runs:
         path: |
           $HOME/.local
           $HOME/.cache/pypoetry
-        key: ${{ github.ref_name }}-cache-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+        key: cache-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Update PATH to include poetry
       if: steps.load-caches.outputs.cache-hit == 'true'
