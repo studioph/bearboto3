@@ -17,14 +17,19 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
-    - name: Load caches
-      id: load-caches
+    - name: Load poetry cache
+      id: load-poetry-cache
       uses: actions/cache@v2.1.6
       with:
-        path: |
-          $HOME/.local
-          $HOME/.cache/pypoetry
-        key: ${{ github.ref }}-cache-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+        path: $HOME/.local
+        key: ${{ github.head_ref }}-poetry-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+
+    - name: Load virtualenv cache
+      id: load-env-cache
+      uses: actions/cache@v2.1.6
+      with:
+        path: $HOME/.cache/pypoetry
+        key: ${{ github.head_ref }}-env-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Update PATH to include poetry
       if: steps.load-caches.outputs.cache-hit == 'true'
@@ -32,7 +37,7 @@ runs:
       shell: bash
 
     - name: Install poetry ${{ inputs.poetry-version }}
-      if: steps.load-caches.outputs.cache-hit != 'true'
+      if: steps.load-poetry-cache.outputs.cache-hit != 'true'
       uses: abatilo/actions-poetry@v2.0.0
       with:
         poetry-version: ${{ inputs.poetry-version }}
@@ -42,6 +47,6 @@ runs:
       shell: bash
 
     - name: Install dependencies
-      if: steps.load-caches.outputs.cache-hit != 'true'
+      if: steps.load-env-cache.outputs.cache-hit != 'true'
       run: poetry install
       shell: bash
