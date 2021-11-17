@@ -22,7 +22,7 @@ runs:
       uses: actions/cache@v2.1.6
       with:
         path: $HOME/.local
-        key: ${{ github.head_ref }}-poetry-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+        key: ${{ github.ref_name }}-poetry-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Load virtualenv cache
       id: load-env-cache
