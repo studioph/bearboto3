@@ -38,7 +38,7 @@ runs:
         poetry-version: ${{ inputs.poetry-version }}
 
     - name: Set virutalenv
-      run: poetry env use ${{ inputs.python-version }}
+      run: $HOME/.local/bin/poetry env use ${{ inputs.python-version }}
       shell: bash
 
     - name: Install dependencies
