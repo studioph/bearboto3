@@ -15,7 +15,52 @@ env:
   OS_VERSION: ubuntu-latest
 
 jobs:
-  lint:
+  # lint:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version:
+  #         - 3.6.7
+  #         - 3.9
+  #         - 3.10.0
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Clone repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup environment
+  #       uses: ./.github/actions/setup_env
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #         poetry-version: ${{ env.POETRY_VERSION }}
+
+  #     - name: Lint code
+  #       run: poetry run pylint --fail-under=${{ env.PYLINT_THRESHOLD }} bearboto3
+
+  # test:
+  #   needs: lint
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version:
+  #         - 3.6.7
+  #         - 3.9
+  #         - 3.10.0
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Clone repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Setup environment
+  #       uses: ./.github/actions/setup_env
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #         poetry-version: ${{ env.POETRY_VERSION }}
+
+  #     - name: Run unit tests
+  #       run: poetry run pytest --cov=bearboto3 --cov-report=term-missing --cov-fail-under=${{ env.CODE_COV_PERCENT }}
+
+  debug:
     strategy:
       fail-fast: false
       matrix:
@@ -25,37 +70,8 @@ jobs:
           - 3.10.0
     runs-on: ubuntu-latest
     steps:
-      - name: Clone repo
-        uses: actions/checkout@v2
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2.0.0
 
-      - name: Setup environment
-        uses: ./.github/actions/setup_env
-        with:
-          python-version: ${{ matrix.python-version }}
-          poetry-version: ${{ env.POETRY_VERSION }}
-
-      - name: Lint code
-        run: poetry run pylint --fail-under=${{ env.PYLINT_THRESHOLD }} bearboto3
-
-  test:
-    needs: lint
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - 3.6.7
-          - 3.9
-          - 3.10.0
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v2
-
-      - name: Setup environment
-        uses: ./.github/actions/setup_env
-        with:
-          python-version: ${{ matrix.python-version }}
-          poetry-version: ${{ env.POETRY_VERSION }}
-
-      - name: Run unit tests
-        run: poetry run pytest --cov=bearboto3 --cov-report=term-missing --cov-fail-under=${{ env.CODE_COV_PERCENT }}
+      - name: Show poetry install location
+        run: which poetry
