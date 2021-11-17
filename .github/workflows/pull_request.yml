@@ -1,0 +1,54 @@
+name: Pull Request
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  MIN_PYTHON_VER: 3.6.7
+  PYTHON_VER_SPLIT: 3.9
+  LATEST_PYTHON_VER: 3.10.0
+  POETRY_VERSION: 1.1.11
+  CODE_COV_PERCENT: 90
+  PYLINT_THRESHOLD: 8
+  OS_VERSION: ubuntu-latest
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - 3.6.7
+          - 3.9
+          - 3.10.0
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          python-version: ${{ matrix.python-version }}
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Run unit tests
+        run: poetry run pytest --cov=bearboto3 --cov-report=term-missing --cov-fail-under=${{ env.CODE_COV_PERCENT }}
+
+  lint:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - 3.6.7
+          - 3.9
+          - 3.10.0
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup environment
+        uses: ./.github/actions/setup_env
+        with:
+          python-version: ${{ matrix.python-version }}
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Lint code
+        run: poetry run pylint --fail-inder=${{ env.PYLINT_THRESHOLD }} bearboto3
