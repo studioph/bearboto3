@@ -28,7 +28,7 @@ runs:
 
     - name: Update PATH to include poetry
       if: steps.load-caches.outputs.cache-hit == 'true'
-      run: export PATH=$PATH:$HOME/.local/bin
+      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       shell: bash
 
     - name: Install poetry ${{ inputs.poetry-version }}
