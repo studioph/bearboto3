@@ -27,17 +27,31 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
+
       - name: Setup python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Load caches
+        id: load-caches
+        uses: bearboto3/.github/cache_poetry
+        with:
+          python-version: matrix.python-version
+          poetry-version: env.POETRY_VERSION
+
       - name: Setup poetry ${{ env.POETRY_VERSION }}
+        if: steps.load-caches.steps.load-poetry-cache.outputs.cache-hit != 'true'
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
+
       - name: Set virutalenv
         run: poetry env use ${{ matrix.python-version }}
+
       - name: Install dependencies
+        if: steps.load-caches.steps.load-env-cache.outputs.cache-hit != 'true'
         run: poetry install
+
       - name: Run unit tests
         run: poetry run pytest --cov=bearboto3 --cov-report=term-missing --cov-fail-under=${{ env.CODE_COV_PERCENT }}
