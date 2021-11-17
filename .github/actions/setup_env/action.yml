@@ -32,13 +32,13 @@ runs:
       shell: bash
 
     - name: Install poetry ${{ inputs.poetry-version }}
-      if: steps.load-caches.outputs.cache-hit != 'true'
+      # if: steps.load-caches.outputs.cache-hit != 'true'
       uses: abatilo/actions-poetry@v2.0.0
       with:
         poetry-version: ${{ inputs.poetry-version }}
 
     - name: Set virutalenv
-      run: $HOME/.local/bin/poetry env use ${{ inputs.python-version }}
+      run: poetry env use ${{ inputs.python-version }}
       shell: bash
 
     - name: Install dependencies
