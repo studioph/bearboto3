@@ -26,6 +26,11 @@ runs:
           $HOME/.cache/pypoetry
         key: ${{ github.ref_name }}-cache-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
+    - name: Update PATH to include poetry
+      if: steps.load-caches.outputs.cache-hit == 'true'
+      run: export PATH=$PATH:/.local/bin
+      shell: bash
+
     - name: Install poetry ${{ inputs.poetry-version }}
       if: steps.load-caches.outputs.cache-hit != 'true'
       uses: abatilo/actions-poetry@v2.0.0
