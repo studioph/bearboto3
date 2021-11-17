@@ -35,7 +35,7 @@ jobs:
 
       - name: Load caches
         id: load-caches
-        uses: bearboto3/.github/cache_poetry
+        uses: .github/cache_poetry
         with:
           python-version: matrix.python-version
           poetry-version: env.POETRY_VERSION
