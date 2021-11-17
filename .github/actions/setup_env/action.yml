@@ -24,11 +24,11 @@ runs:
         path: |
           ~/.local
           ~/.cache/pypoetry
-        key: ${{ github.base_ref }}-cache-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+        key: ${{ github.head_ref }}-cache-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Update PATH to include poetry
       if: steps.load-caches.outputs.cache-hit == 'true'
-      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      run: echo "~/.local/bin" >> $GITHUB_PATH
       shell: bash
 
     - name: Install poetry ${{ inputs.poetry-version }}
