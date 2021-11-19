@@ -7,7 +7,7 @@ on:
 
 env:
   MIN_PYTHON_VER: 3.6.7
-  PYTHON_VER_SPLIT: 3.9
+  PYTHON_VER_SPLIT: 3.9.0
   LATEST_PYTHON_VER: 3.10.0
   POETRY_VERSION: 1.1.11
   CODE_COV_PERCENT: 90
@@ -21,7 +21,7 @@ jobs:
       matrix:
         python-version:
           - 3.6.7
-          - 3.9
+          - 3.9.0
           - 3.10.0
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +44,7 @@ jobs:
       matrix:
         python-version:
           - 3.6.7
-          - 3.9
+          - 3.9.0
           - 3.10.0
     runs-on: ubuntu-latest
     steps:
