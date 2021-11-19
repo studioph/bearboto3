@@ -17,30 +17,33 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
-    - name: Load caches
-      id: load-caches
+    - name: Attempt load poetry cache
+      id: load-poetry-cache
       uses: actions/cache@v2.1.6
       with:
-        path: |
-          /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
-          ~/.cache/pypoetry
-        key: ${GITHUB_REF##*/}-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+        path: /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
+        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Install poetry ${{ inputs.poetry-version }}
-      if: steps.load-caches.outputs.cache-hit != 'true'
+      if: steps.load-poetry-cache.outputs.cache-hit != 'true'
       uses: abatilo/actions-poetry@v2.0.0
       with:
         poetry-version: ${{ inputs.poetry-version }}
 
-    - name: Set virutalenv
-      run: poetry env use ${{ inputs.python-version }}
-      shell: bash
+    - name: Attempt load env cache
+      id: load-env-cache
+      uses: actions/cache@v2.1.6
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles(poetry.lock) }}
+        restore-keys: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-
 
     - name: Update lockfile with any changes
-      if: steps.load-caches.outputs.cache-hit == 'true'
+      if: steps.load-env-cache.outputs.cache-hit != 'true'
       run: poetry lock --no-update
       shell: bash
 
     - name: Install dependencies
-      run: poetry install
+      if: steps.load-env-cache.outputs.cache-hit != 'true'
+      run: poetry install --remove-untracked
       shell: bash
