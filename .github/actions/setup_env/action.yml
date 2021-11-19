@@ -24,7 +24,7 @@ runs:
         path: |
           /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
           ~/.cache/pypoetry
-        key: ${{ github.ref_name }}-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles("pyproject.toml", "poetry.lock") }}
 
     - name: Install poetry ${{ inputs.poetry-version }}
       if: steps.load-caches.outputs.cache-hit != 'true'
