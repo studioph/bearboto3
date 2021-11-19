@@ -27,7 +27,7 @@ runs:
         key: ${{ github.head_ref }}-cache-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: ls .cache
-      run: ls ~/.cache/pypoetry/virutalenvs
+      run: ls ~/.cache/pypoetry
       shell: bash
 
     - name: Update PATH to include poetry
