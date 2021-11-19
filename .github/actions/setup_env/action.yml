@@ -35,7 +35,7 @@ runs:
       uses: actions/cache@v2.1.6
       with:
         path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles("poetry.lock") }}
+        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
         restore-keys: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-
 
     - name: Update lockfile with any changes
