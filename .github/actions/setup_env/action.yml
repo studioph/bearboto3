@@ -27,7 +27,7 @@ runs:
         key: ${{ github.head_ref }}-cache-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: ls .cache
-      run: ls ~/.cache/pypoetry
+      run: ls ~/.cache/pypoetry/virtualenvs
       shell: bash
 
     - name: Update PATH to include poetry
@@ -43,6 +43,12 @@ runs:
 
     - name: find poetry path
       run: which poetry
+      shell: bash
+
+    - name: ls /opt/hostedtoolcache
+      run: |
+        ls /opt/hostedtoolcache &&
+        ls /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
       shell: bash
 
     - name: Set virutalenv
