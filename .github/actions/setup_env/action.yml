@@ -4,7 +4,7 @@ description: Sets up python, poetry, virtualenvs, and caching
 inputs:
   python-version:
     required: true
-    description: Verison of python to use for cache key
+    description: Verison of python to install
   poetry-version:
     required: true
     description: Version of poetry to install (if cache miss)
@@ -22,7 +22,7 @@ runs:
       uses: actions/cache@v2.1.6
       with:
         path: |
-          /opt/hostedtoolcache/Python
+          /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
           ~/.cache/pypoetry
         key: ${{ github.base_ref }}-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
