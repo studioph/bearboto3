@@ -24,7 +24,7 @@ runs:
         path: |
           /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
           ~/.cache/pypoetry
-        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles("poetry.lock") }}
+        key: ${GITHUB_REF##*/}-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Install poetry ${{ inputs.poetry-version }}
       if: steps.load-caches.outputs.cache-hit != 'true'
@@ -36,7 +36,11 @@ runs:
       run: poetry env use ${{ inputs.python-version }}
       shell: bash
 
+    - name: Update lockfile with any changes
+      if: steps.load-caches.outputs.cache-hit == 'true'
+      run: poetry lock --no-update
+      shell: bash
+
     - name: Install dependencies
-      if: steps.load-caches.outputs.cache-hit != 'true'
       run: poetry install
       shell: bash
