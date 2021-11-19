@@ -24,32 +24,13 @@ runs:
         path: |
           /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
           ~/.cache/pypoetry
-        key: ${{ github.base_ref }}-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
-
-    # - name: ls .cache
-    #   run: ls ~/.cache/pypoetry/virtualenvs
-    #   shell: bash
-
-    # - name: Update PATH to include poetry
-    #   if: steps.load-caches.outputs.cache-hit == 'true'
-    #   run: echo "~/.local/bin" >> $GITHUB_PATH
-    #   shell: bash
+        key: ${{ github.ref_name }}-${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Install poetry ${{ inputs.poetry-version }}
       if: steps.load-caches.outputs.cache-hit != 'true'
       uses: abatilo/actions-poetry@v2.0.0
       with:
         poetry-version: ${{ inputs.poetry-version }}
-
-    # - name: find poetry path
-    #   run: which poetry
-    #   shell: bash
-
-    # - name: ls /opt/hostedtoolcache
-    #   run: |
-    #     ls /opt/hostedtoolcache &&
-    #     ls /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
-    #   shell: bash
 
     - name: Set virutalenv
       run: poetry env use ${{ inputs.python-version }}
