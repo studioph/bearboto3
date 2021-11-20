@@ -8,6 +8,9 @@ inputs:
   poetry-version:
     required: true
     description: Version of poetry to install (if cache miss)
+  platform:
+    required: true
+    description: Platform (OS) being tested
 
 runs:
   using: composite
@@ -22,7 +25,7 @@ runs:
       uses: actions/cache@v2.1.6
       with:
         path: /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
-        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+        key: ${{ inputs.platform }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
 
     - name: Install poetry ${{ inputs.poetry-version }}
       if: steps.load-poetry-cache.outputs.cache-hit != 'true'
@@ -35,8 +38,8 @@ runs:
       uses: actions/cache@v2.1.6
       with:
         path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
-        restore-keys: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-
+        key: ${{ inputs.platform }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
+        restore-keys: ${{ inputs.platform }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-
 
     - name: Update lockfile with any changes
       if: steps.load-env-cache.outputs.cache-hit != 'true'

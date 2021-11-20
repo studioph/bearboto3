@@ -10,7 +10,6 @@ env:
   PYTHON_VER_SPLIT: 3.9.0
   LATEST_PYTHON_VER: 3.10.0
   POETRY_VERSION: 1.1.11
-  OS_VERSION: ubuntu-latest
 
 jobs:
   lint:
@@ -21,7 +20,11 @@ jobs:
           - 3.6.7
           - 3.9.0
           - 3.10.0
-    runs-on: ubuntu-latest
+        platform:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.platform }}
+    name: Python ${{ matrix.python-version }} [${{ matrix.platform }}]
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
@@ -31,6 +34,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           poetry-version: ${{ env.POETRY_VERSION }}
+          platform: ${{ matrix.platform }}
 
       - name: Lint code
         run: poetry run pylint bearboto3
@@ -44,7 +48,11 @@ jobs:
           - 3.6.7
           - 3.9.0
           - 3.10.0
-    runs-on: ubuntu-latest
+        platform:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.platform }}
+    name: Python ${{ matrix.python-version }} [${{ matrix.platform }}]
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
@@ -54,6 +62,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           poetry-version: ${{ env.POETRY_VERSION }}
+          platform: ${{ matrix.platform }}
 
       - name: Run unit tests
         run: poetry run pytest
