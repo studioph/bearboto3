@@ -19,6 +19,8 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+here = Path(__file__).parent
+
 boto3_path = Path(inspect.getfile(boto3)).parent
 botocore_path = Path(inspect.getfile(botocore)).parent
 
@@ -163,6 +165,6 @@ def get_paginators(prefix: str, model: dict) -> list[dict[str, str]]:
 
 
 classes = get_service_classes(args.service)
-filename = f"{args.service}_classes.json"
-with open(filename, "w") as file:
+classes_file = here.joinpath(f"{args.service}_classes.json")
+with classes_file.open("w") as file:
     json.dump(classes, file)
