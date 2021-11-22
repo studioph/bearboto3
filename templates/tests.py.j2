@@ -1,0 +1,41 @@
+# ============================
+# SECTION
+# ============================
+
+
+def test_{{ type_snake }}_arg_pass({{ pass_fixture }}):
+    @beartype
+    def func(param: {{ type_pascal }}):
+        pass
+
+    func({{ pass_fixture }})
+
+
+def test_{{ type_snake }}_arg_fail({{ fail_fixture }}):
+    with pytest.raises(BeartypeCallHintPepParamException):
+
+        @beartype
+        def func(param: {{ type_pascal }}):
+            pass
+
+        func({{ fail_fixture }})
+
+
+def test_{{ type_snake }}_return_pass({{ pass_fixture }}):
+    @beartype
+    def func() -> {{ type_pascal }}:
+        return {{ pass_fixture }}
+
+    result = func()
+
+
+def test_{{ type_snake }}_return_fail({{ fail_fixture }}):
+    with pytest.raises(
+        (BeartypeCallHintPepReturnException, BeartypeDecorHintPep484585Exception)
+    ):
+
+        @beartype
+        def func() -> {{ type_pascal }}:
+            return {{ fail_fixture }}
+
+        result = func()

@@ -1,0 +1,15 @@
+import boto3
+import pytest
+from moto import mock_{{ service }}
+from tests.utils import random_str
+
+@pytest.fixture
+def {{ service }}_client(aws_setup):
+    with mock_{{ service }}():
+        yield boto3.client("{{ service }}")
+
+
+@pytest.fixture
+def {{ service}}_resource(aws_setup):
+    with mock_{{ service }}():
+        yield boto3.resource("{{ service }}")
