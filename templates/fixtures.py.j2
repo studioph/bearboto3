@@ -13,3 +13,43 @@ def {{ service }}_client(aws_setup):
 def {{ service}}_resource(aws_setup):
     with mock_{{ service }}():
         yield boto3.resource("{{ service }}")
+
+# ============================
+# WAITER
+# ============================
+
+{% for item in waiter_fixtures %}
+@pytest.fixture
+def gen_{{ item["type_name"]}}_waiter({{ service }}_client):
+    return {{ service }}_client.get_waiter("{{ item['xform_name'] }}")
+{% endfor %}
+
+# ============================
+# PAGINATOR
+# ============================
+
+{% for item in paginator_fixtures %}
+@pytest.fixture
+def gen_{{ item["type_name"]}}_paginator({{ service }}_client):
+    return {{ service }}_client.get_paginator("{{ item['xform_name'] }}")
+{% endfor %}
+
+# ============================
+# RESOURCE
+# ============================
+
+{% for item in resource_fixtures %}
+@pytest.fixture
+def gen_{{ item["type_name"]}}({{ service }}_resource):
+    return {{ service }}_resource.{{ item['pascal_name'] }}(random_str())
+{% endfor %}
+
+# ============================
+# COLLECTIONS
+# ============================
+
+{% for item in collection_fixtures %}
+@pytest.fixture
+def gen_{{ item["type_name"]}}({{ item["fixture"] }}):
+    return {{ item["fixture"] }}.{{ item["field"]}}.all()
+{% endfor %}

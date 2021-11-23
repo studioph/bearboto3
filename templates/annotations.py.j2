@@ -1,8 +1,16 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from mypy_boto3_{{ service }} import {{ client_types }}
-    from mypy_boto3_{{ service }}.service_resource import {{ resource_types }}
+    from mypy_boto3_{{ service }} import (
+        {% for item in client_types %}
+        {{ item }},
+        {% endfor %}
+    )
+    from mypy_boto3_{{ service }}.service_resource import (
+        {% for item in resource_types %}
+        {{ item }},
+        {% endfor %}
+    )
 else:
     from beartype.vale import IsAttr, IsEqual
     from boto3.resources.base import ServiceResource
@@ -13,4 +21,6 @@ else:
 
     from bearboto3 import Annotated
 
-    {{ type_annotations }}
+    {% for item in annotations %}
+    {{ item["stub_class"] }} = Annotated[{{ item["base_class"] }}, IsAttr["__class__", IsAttr["__name__", IsEqual["{{ item['boto_class'] }}"]]]]
+    {% endfor %}

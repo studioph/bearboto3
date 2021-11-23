@@ -1,0 +1,14 @@
+import pytest
+from bearboto3.{{ service }} import (
+    {% for item in types%}
+    {{ item }},
+    {% endfor %}
+)
+from beartype import beartype
+from beartype.roar import (BeartypeCallHintPepParamException,
+                           BeartypeCallHintPepReturnException,
+                           BeartypeDecorHintPep484585Exception)
+
+{% for group in test_groups %}
+{{ group }}
+{% endfor %}
