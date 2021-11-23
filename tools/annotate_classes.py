@@ -1,6 +1,5 @@
 import argparse
 import json
-import operator
 from operator import itemgetter
 from pathlib import Path
 
@@ -23,7 +22,7 @@ here = Path(__file__).parent
 classes_file = here.joinpath(f"{args.service}_classes.json")
 with classes_file.open("r") as file:
     entries = json.load(file)
-entries.sort(key=operator.itemgetter("stub_class"))
+entries.sort(key=itemgetter("stub_class"))
 
 client_base_types = ["Waiter", "Paginator", "BaseClient"]
 resource_base_types = ["ServiceResource", "ResourceCollection"]
