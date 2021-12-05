@@ -5,7 +5,7 @@ description = ""
 authors = ["Paul <dev@studiop.page>"]
 
 [tool.poetry.dependencies]
-python = "^3.6.7"
+python = "^3.7"
 beartype = "^0.9.1"
 boto3 = "^1.20.5"
 
@@ -24,7 +24,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pylint.master]
-fail-under = 8
+fail-under = 9
 
 [tool.pylint.messages_control]
 disable = [
