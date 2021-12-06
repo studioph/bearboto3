@@ -12,38 +12,46 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--service",
     type=str,
-    # required=True,
+    required=True,
     help='Service to load {service}_classes.json and output "bearboto3/{service}.py"',
 )
 args = parser.parse_args()
 
 here = Path(__file__).parent
 
-classes_file = here.joinpath(f"{args.service}_classes.json")
+data_folder = here.parent.joinpath("data")
+classes_file = data_folder.joinpath(f"{args.service}_data.json")
 with classes_file.open("r") as file:
-    entries = json.load(file)
-entries.sort(key=itemgetter("stub_class"))
+    data = json.load(file)
 
-client_base_types = ["Waiter", "Paginator", "BaseClient"]
-resource_base_types = ["ServiceResource", "ResourceCollection"]
+has_resources = all(i in data for i in ["service_resource", "collections", "resources"])
 
-client_types = [
-    entry["stub_class"] for entry in entries if entry["base_class"] in client_base_types
-]
-resource_types = [
-    entry["stub_class"]
-    for entry in entries
-    if entry["base_class"] in resource_base_types
-]
+client_types = sorted(
+    [item["stub_class"] for item in data["waiters"]]
+    + [item["stub_class"] for item in data["paginators"]]
+    + [data["client"]["stub_class"]]
+)
+if has_resources:
+    resource_types = sorted(
+        [item["stub_class"] for item in data["resources"]]
+        + [item["stub_class"] for item in data["collections"]]
+        + [data["service_resource"]["stub_class"]]
+    )
 
 templates_folder = here.parent.joinpath("templates")
 env = Environment(loader=FileSystemLoader(templates_folder))
 template_file = env.get_template("annotations.py.j2")
 
+items = [data["client"], *data["waiters"], *data["paginators"]]
+if has_resources:
+    items += data["resources"]
+    items += data["collections"]
+    items.append(data["service_resource"])
+
 output_file = here.parent.joinpath("bearboto3").joinpath(f"{args.service}.py")
 with output_file.open("w") as file:
     template_file.stream(
-        annotations=entries,
+        annotations=sorted(items, key=itemgetter("stub_class")),
         service=args.service,
         client_types=client_types,
         resource_types=resource_types,
