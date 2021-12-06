@@ -16,8 +16,9 @@ args = parser.parse_args()
 
 here = Path(__file__).parent
 
-classes_file = here.joinpath(f"{args.service}_classes.json")
-with classes_file.open("r") as file:
+data_folder = here.parent.joinpath("data")
+data_file = data_folder.joinpath(f"{args.service}_data.json")
+with data_file.open("r") as file:
     data = json.load(file)
 
 templates_folder = here.parent.joinpath("templates")
@@ -25,12 +26,10 @@ env = Environment(loader=FileSystemLoader(templates_folder))
 template = env.get_template("fixtures.py.j2")
 
 
-output_file = (
-    here.parent.joinpath("tests")
-    .joinpath(args.service)
-    .joinpath(f"{args.service}_fixtures.py")
-)
-output_file.mkdir(parents=True, exist_ok=True)
+output_folder = here.parent.joinpath("tests").joinpath(args.service)
+output_folder.mkdir(parents=True, exist_ok=True)
+output_file = output_folder.joinpath(f"{args.service}_fixtures.py")
+
 
 with output_file.open("w") as fp:
     template.stream(

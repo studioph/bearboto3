@@ -1,0 +1,46 @@
+{
+    "client": {
+        "boto_class": "",
+        "stub_class": "",
+        "base_class": ""
+    },
+    "service_resource": {
+        "boto_class": "",
+        "stub_class": "",
+        "base_class": ""
+    },
+    "waiters": [
+        {
+            "snake_name": "",
+            "boto_class": "",
+            "stub_class": "",
+            "base_class": ""
+        }
+    ],
+    "paginators": [
+        {
+            "boto_class": "",
+            "stub_class": "",
+            "base_class": "",
+            "snake_name": ""
+        }
+    ],
+    "resources": [
+        {
+            "boto_class": "",
+            "stub_class": "",
+            "base_class": "",
+            "snake_name": "",
+            "stub_class": ""
+        }
+    ],
+    "collections": [
+        {
+            "boto_class": "",
+            "stub_class": "",
+            "base_class": "",
+            "fixture": "",
+            "field": ""
+        }
+    ]
+}

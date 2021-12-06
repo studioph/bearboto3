@@ -20,8 +20,8 @@ args = parser.parse_args()
 here = Path(__file__).parent
 
 data_folder = here.parent.joinpath("data")
-classes_file = data_folder.joinpath(f"{args.service}_data.json")
-with classes_file.open("r") as file:
+data_file = data_folder.joinpath(f"{args.service}_data.json")
+with data_file.open("r") as file:
     data = json.load(file)
 
 has_resources = all(i in data for i in ["service_resource", "collections", "resources"])
