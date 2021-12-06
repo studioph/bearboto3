@@ -18,38 +18,38 @@ def {{ service}}_resource(aws_setup):
 # WAITER
 # ============================
 
-{% for item in waiter_fixtures %}
+{% for item in waiters %}
 @pytest.fixture
-def gen_{{ item["type_name"]}}_waiter({{ service }}_client):
-    return {{ service }}_client.get_waiter("{{ item['xform_name'] }}")
+def gen_{{ item["snake_name"]}}_waiter({{ service }}_client):
+    return {{ service }}_client.get_waiter("{{ item['snake_name'] }}")
 {% endfor %}
 
 # ============================
 # PAGINATOR
 # ============================
 
-{% for item in paginator_fixtures %}
+{% for item in paginators %}
 @pytest.fixture
-def gen_{{ item["type_name"]}}_paginator({{ service }}_client):
-    return {{ service }}_client.get_paginator("{{ item['xform_name'] }}")
+def gen_{{ item["snake_name"]}}_paginator({{ service }}_client):
+    return {{ service }}_client.get_paginator("{{ item['snake_name'] }}")
 {% endfor %}
 
 # ============================
 # RESOURCE
 # ============================
 
-{% for item in resource_fixtures %}
+{% for item in resources %}
 @pytest.fixture
-def gen_{{ item["type_name"]}}({{ service }}_resource):
-    return {{ service }}_resource.{{ item['pascal_name'] }}(random_str())
+def gen_{{ item["snake_name"]}}({{ service }}_resource):
+    return {{ service }}_resource.{{ item['stub_class'] }}(random_str())
 {% endfor %}
 
 # ============================
 # COLLECTIONS
 # ============================
 
-{% for item in collection_fixtures %}
+{% for item in collections %}
 @pytest.fixture
-def gen_{{ item["type_name"]}}({{ item["fixture"] }}):
+def gen_{{ item["snake_name"]}}({{ item["fixture"] }}):
     return {{ item["fixture"] }}.{{ item["field"]}}.all()
 {% endfor %}
