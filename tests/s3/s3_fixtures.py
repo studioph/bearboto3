@@ -102,7 +102,7 @@ def gen_list_multipart_uploads_paginator(s3_client):
 
 
 @pytest.fixture
-def get_list_object_versions_paginator(s3_client):
+def gen_list_object_versions_paginator(s3_client):
     return s3_client.get_paginator("list_object_versions")
 
 

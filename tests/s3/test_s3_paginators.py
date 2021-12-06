@@ -26,14 +26,14 @@ def test_list_multipart_uploads_paginator_pass(gen_list_multipart_uploads_pagina
     func(gen_list_multipart_uploads_paginator)
 
 
-def test_list_multipart_uploads_paginator_arg_fail(get_list_object_versions_paginator):
+def test_list_multipart_uploads_paginator_arg_fail(gen_list_object_versions_paginator):
     with pytest.raises(BeartypeCallHintPepParamException):
 
         @beartype
         def func(paginator: ListMultipartUploadsPaginator):
             pass
 
-        func(get_list_object_versions_paginator)
+        func(gen_list_object_versions_paginator)
 
 
 def test_list_multipart_uploads_paginator_return_pass(
@@ -47,7 +47,7 @@ def test_list_multipart_uploads_paginator_return_pass(
 
 
 def test_list_multipart_uploads_paginator_return_fail(
-    get_list_object_versions_paginator,
+    gen_list_object_versions_paginator,
 ):
     with pytest.raises(
         (BeartypeCallHintPepReturnException, BeartypeDecorHintPep484585Exception)
@@ -55,7 +55,7 @@ def test_list_multipart_uploads_paginator_return_fail(
 
         @beartype
         def func() -> ListMultipartUploadsPaginator:
-            return get_list_object_versions_paginator
+            return gen_list_object_versions_paginator
 
         paginator = func()
 
@@ -65,12 +65,12 @@ def test_list_multipart_uploads_paginator_return_fail(
 # ============================
 
 
-def test_list_object_versions_paginator_pass(get_list_object_versions_paginator):
+def test_list_object_versions_paginator_pass(gen_list_object_versions_paginator):
     @beartype
     def func(paginator: ListObjectVersionsPaginator):
         pass
 
-    func(get_list_object_versions_paginator)
+    func(gen_list_object_versions_paginator)
 
 
 def test_list_object_versions_paginator_arg_fail(gen_list_multipart_uploads_paginator):
@@ -83,10 +83,10 @@ def test_list_object_versions_paginator_arg_fail(gen_list_multipart_uploads_pagi
         func(gen_list_multipart_uploads_paginator)
 
 
-def test_list_object_versions_paginator_return_pass(get_list_object_versions_paginator):
+def test_list_object_versions_paginator_return_pass(gen_list_object_versions_paginator):
     @beartype
     def func() -> ListObjectVersionsPaginator:
-        return get_list_object_versions_paginator
+        return gen_list_object_versions_paginator
 
     paginator = func()
 
