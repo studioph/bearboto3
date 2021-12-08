@@ -83,6 +83,7 @@ def get_resources(resource_prefix: str, other_prefix: str, model: dict) -> dict:
             "boto_class": f"{resource_prefix}.{resource}",
             "base_class": resource_base,
             "snake_name": xform_name(resource),
+            "fixture": f"gen_{xform_name(resource)}",
         }
         for resource in list(model["resources"].keys())
     ]
@@ -98,7 +99,9 @@ def get_collections(service: str, model: dict) -> list[dict[str, str]]:
                 "boto_class": f"{service}.{xform_name(item)}{collection_suffix}",
                 "base_class": collections_base,
                 "field": xform_name(item),
-                "fixture": f"{service}_resource",
+                "parent_fixture": f"{service}_resource",
+                "fixture": f"gen_{xform_name(item)}_collection",
+                "snake_name": xform_name(item),
             }
             for item in model["service"][collections_key]
         ]
@@ -114,7 +117,9 @@ def get_collections(service: str, model: dict) -> list[dict[str, str]]:
                     "boto_class": f"{service}.{resource}.{xform_name(item)}{collection_suffix}",
                     "base_class": collections_base,
                     "field": xform_name(item),
-                    "fixture": f"gen_{xform_name(item[:-1])}",
+                    "fixture": f"gen_{xform_name(item)}_collection",
+                    "parent_fixture": f"gen_{xform_name(resource)}",
+                    "snake_name": xform_name(item),
                 }
                 for item in definition[collections_key]
             ]
@@ -152,6 +157,7 @@ def get_waiters(prefix: str, model: dict) -> list[dict[str, str]]:
             "boto_class": f"{prefix}.{waiter_base}.{waiter}",
             "base_class": waiter_base,
             "snake_name": xform_name(waiter),
+            "fixture": f"gen_{xform_name(waiter)}_waiter",
         }
         for waiter in model["waiters"]
     ]
@@ -164,6 +170,7 @@ def get_paginators(prefix: str, model: dict) -> list[dict[str, str]]:
             "boto_class": f"{prefix}.{paginator_base}.{paginator}",
             "base_class": paginator_base,
             "snake_name": xform_name(paginator),
+            "fixture": f"gen_{xform_name(paginator)}_paginator",
         }
         for paginator in model["pagination"]
     ]
