@@ -25,11 +25,14 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pylint.master]
 fail-under = 9
+pyversion = 3.7
+max-line-length = 120
 
 [tool.pylint.messages_control]
 disable = [
     "missing-module-docstring",
-    "missing-function-docstring"
+    "missing-function-docstring",
+    "redefined-outer-name"
 ]
 
 [tool.pytest.ini_options]

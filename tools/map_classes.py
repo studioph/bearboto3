@@ -37,6 +37,7 @@ WRITE = "w"
 SERVICE_NAME_PASCAL = args.service.upper()
 SERVICE_NAME_SNAKE = xform_name(args.service)
 CONSTRUCTOR_ARGS_KEY = "identifiers"
+DATA_FILE_NAME = f"{args.service}_data.json"
 
 
 def get_latest_version(folder: Path) -> Path:
@@ -196,8 +197,8 @@ if HAS_RESOURCES:
     schema_folder = get_latest_version(resource_data_folder)
     data.update(get_resources(schema_folder))
 
-output_folder = here.parent.joinpath("data")
+output_folder = here.parent.joinpath(DATA_FOLDER)
 output_folder.mkdir(parents=True, exist_ok=True)
-output_file = output_folder.joinpath(f"{args.service}_data.json")
+output_file = output_folder.joinpath(DATA_FILE_NAME)
 with output_file.open(WRITE, encoding=UTF_8) as file:
     json.dump(data, file)
