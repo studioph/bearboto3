@@ -3,6 +3,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+from typing import Dict, List
 
 import boto3
 import botocore
@@ -44,10 +45,10 @@ def get_latest_version(folder: Path) -> Path:
     return folder.joinpath(latest_version)
 
 
-def get_waiters(folder: Path) -> list[dict[str, str]]:
+def get_waiters(folder: Path) -> List[Dict[str, str]]:
     waiters_file = folder.joinpath(WAITERS_FILE_NAME)
-    with waiters_file.open(READ, encoding=UTF_8) as fp:
-        waiters_json = json.load(fp)
+    with waiters_file.open(READ, encoding=UTF_8) as file:
+        waiters_json = json.load(file)
 
     return [
         {
@@ -61,10 +62,10 @@ def get_waiters(folder: Path) -> list[dict[str, str]]:
     ]
 
 
-def get_paginators(folder: Path) -> list[dict[str, str]]:
+def get_paginators(folder: Path) -> List[Dict[str, str]]:
     paginators_file = folder.joinpath(PAGINATORS_FILE_NAME)
-    with paginators_file.open(READ, encoding=UTF_8) as fp:
-        paginators_json = json.load(fp)
+    with paginators_file.open(READ, encoding=UTF_8) as file:
+        paginators_json = json.load(file)
 
     return [
         {
@@ -79,26 +80,29 @@ def get_paginators(folder: Path) -> list[dict[str, str]]:
 
 
 def get_collections(
-    parent_key: str, parent_node: dict, parent_item: dict[str, str]
-) -> list[dict[str, str]]:
+    resource_definition: Dict, parent: Dict[str, str]
+) -> List[Dict[str, str]]:
     return [
         {
-            "stub_class": f"{parent_key}{collection}{COLLECTION_SUFFIX}",
-            "boto_class": f"{SERVICE_NAME_SNAKE}.{parent_key}.{xform_name(collection)}{COLLECTION_SUFFIX}",
+            "stub_class": f"{parent['stub_class']}{collection}{COLLECTION_SUFFIX}",
+            "boto_class": f"{SERVICE_NAME_SNAKE}.{parent['stub_class']}.{xform_name(collection)}{COLLECTION_SUFFIX}",
             "base_class": COLLECTION_BASE_CLASS,
             "fixture_name": f"gen_{xform_name(collection)}_collection",
             "snake_name": xform_name(collection),
-            "parent_fixture_name": parent_item["fixture_name"],
+            "parent_fixture_name": parent["fixture_name"],
         }
-        for collection in parent_node["hasMany"]
+        for collection in resource_definition["hasMany"]
     ]
 
 
-def get_resource(key: str, val: dict) -> tuple:
+def get_resource(key: str, resource_definition: Dict) -> tuple:
     num_constructor_args = (
-        len(val[CONSTRUCTOR_ARGS_KEY]) if CONSTRUCTOR_ARGS_KEY in val else 0
+        len(resource_definition[CONSTRUCTOR_ARGS_KEY])
+        if CONSTRUCTOR_ARGS_KEY in resource_definition
+        else 0
     )
 
+    # Handle the resource object
     item = {
         "stub_class": key,
         "boto_class": f"{SERVICE_NAME_SNAKE}.{key}",
@@ -110,18 +114,20 @@ def get_resource(key: str, val: dict) -> tuple:
         ),
     }
 
+    # Handle any collections that are part of this resource
     collections = []
-    if COLLECTIONS_KEY in val:
-        collections = get_collections(key, val, item)
+    if COLLECTIONS_KEY in resource_definition:
+        collections = get_collections(resource_definition, item)
 
     return item, collections
 
 
-def get_resources(folder: Path) -> dict:
+def get_resources(folder: Path) -> Dict:
     resources_file = folder.joinpath(RESOURCES_FILE_NAME)
-    with resources_file.open(READ, encoding=UTF_8) as fp:
-        resources_json = json.load(fp)
+    with resources_file.open(READ, encoding=UTF_8) as file:
+        resources_json = json.load(file)
 
+    # Handle service resource
     result = {
         "service_resource": {
             "stub_class": f"{SERVICE_NAME_PASCAL}{RESOURCE_BASE_CLASS}",
@@ -134,11 +140,22 @@ def get_resources(folder: Path) -> dict:
         "resources": [],
     }
 
-    if COLLECTIONS_KEY in resources_json["service"]:
-        result["collections"] = get_collections(
-            RESOURCE_BASE_CLASS, resources_json["service"], result["service_resource"]
-        )
+    # Handle any collections that are part of the service resource
+    service_resource_definition = resources_json["service"]
+    if COLLECTIONS_KEY in service_resource_definition:
+        result["collections"] += [
+            {
+                "stub_class": f"{RESOURCE_BASE_CLASS}{collection}{COLLECTION_SUFFIX}",
+                "boto_class": f"{SERVICE_NAME_SNAKE}.{xform_name(collection)}{COLLECTION_SUFFIX}",
+                "base_class": COLLECTION_BASE_CLASS,
+                "fixture_name": f"gen_{xform_name(collection)}_collection",
+                "snake_name": xform_name(collection),
+                "parent_fixture_name": result["service_resource"]["fixture_name"],
+            }
+            for collection in service_resource_definition["hasMany"]
+        ]
 
+    # Handle resources and any collections they may have
     for key, val in resources_json["resources"].items():
         item, collections = get_resource(key, val)
         result["resources"].append(item)
@@ -156,7 +173,7 @@ resource_data_folder = boto3_path.joinpath(DATA_FOLDER).joinpath(args.service)
 client_data_folder = botocore_path.joinpath(DATA_FOLDER).joinpath(args.service)
 
 
-has_resources = resource_data_folder.exists()
+HAS_RESOURCES = resource_data_folder.exists()
 data = {
     "client": {
         "stub_class": f"{SERVICE_NAME_PASCAL}Client",
@@ -175,12 +192,12 @@ schema_folder = get_latest_version(client_data_folder)
 data["paginators"] += get_paginators(schema_folder)
 data["waiters"] += get_waiters(schema_folder)
 
-if has_resources:
+if HAS_RESOURCES:
     schema_folder = get_latest_version(resource_data_folder)
-    data |= get_resources(schema_folder)
+    data.update(get_resources(schema_folder))
 
 output_folder = here.parent.joinpath("data")
 output_folder.mkdir(parents=True, exist_ok=True)
 output_file = output_folder.joinpath(f"{args.service}_data.json")
-with output_file.open(WRITE, encoding=UTF_8) as fp:
-    json.dump(data, fp)
+with output_file.open(WRITE, encoding=UTF_8) as file:
+    json.dump(data, file)
