@@ -19,167 +19,168 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+UTF_8 = "utf-8"
+DATA_FOLDER = "data"
+COLLECTION_SUFFIX = "Collection"
+COLLECTIONS_KEY = "hasMany"
+RESOURCE_BASE_CLASS = "ServiceResource"
+COLLECTION_BASE_CLASS = "ResourceCollection"
+PAGINATOR_BASE_CLASS = "Paginator"
+WAITER_BASE_CLASS = "Waiter"
+CLIENT_BASE_CLASS = "BaseClient"
+RESOURCES_FILE_NAME = "resources-1.json"
+PAGINATORS_FILE_NAME = "paginators-1.json"
+WAITERS_FILE_NAME = "waiters-2.json"
+READ = "r"
+WRITE = "w"
+SERVICE_NAME_PASCAL = args.service.upper()
+SERVICE_NAME_SNAKE = xform_name(args.service)
+CONSTRUCTOR_ARGS_KEY = "identifiers"
+
+
+def get_latest_version(folder: Path) -> Path:
+    folders = os.listdir(folder.resolve())
+    latest_version = max(folders)
+    return folder.joinpath(latest_version)
+
+
+def get_waiters(folder: Path) -> list[dict[str, str]]:
+    waiters_file = folder.joinpath(WAITERS_FILE_NAME)
+    with waiters_file.open(READ, encoding=UTF_8) as fp:
+        waiters_json = json.load(fp)
+
+    return [
+        {
+            "stub_class": f"{waiter}{WAITER_BASE_CLASS}",
+            "boto_class": f"{SERVICE_NAME_PASCAL}.{WAITER_BASE_CLASS}.{waiter}",
+            "base_class": WAITER_BASE_CLASS,
+            "fixture_name": f"gen_{xform_name(waiter)}_waiter",
+            "snake_name": xform_name(waiter),
+        }
+        for waiter in waiters_json["waiters"]
+    ]
+
+
+def get_paginators(folder: Path) -> list[dict[str, str]]:
+    paginators_file = folder.joinpath(PAGINATORS_FILE_NAME)
+    with paginators_file.open(READ, encoding=UTF_8) as fp:
+        paginators_json = json.load(fp)
+
+    return [
+        {
+            "stub_class": f"{paginator}{PAGINATOR_BASE_CLASS}",
+            "boto_class": f"{SERVICE_NAME_PASCAL}.{PAGINATOR_BASE_CLASS}.{paginator}",
+            "base_class": PAGINATOR_BASE_CLASS,
+            "fixture_name": f"gen_{xform_name(paginator)}_paginator",
+            "snake_name": xform_name(paginator),
+        }
+        for paginator in paginators_json["pagination"]
+    ]
+
+
+def get_collections(
+    parent_key: str, parent_node: dict, parent_item: dict[str, str]
+) -> list[dict[str, str]]:
+    return [
+        {
+            "stub_class": f"{parent_key}{collection}{COLLECTION_SUFFIX}",
+            "boto_class": f"{SERVICE_NAME_SNAKE}.{parent_key}.{xform_name(collection)}{COLLECTION_SUFFIX}",
+            "base_class": COLLECTION_BASE_CLASS,
+            "fixture_name": f"gen_{xform_name(collection)}_collection",
+            "snake_name": xform_name(collection),
+            "parent_fixture_name": parent_item["fixture_name"],
+        }
+        for collection in parent_node["hasMany"]
+    ]
+
+
+def get_resource(key: str, val: dict) -> tuple:
+    num_constructor_args = (
+        len(val[CONSTRUCTOR_ARGS_KEY]) if CONSTRUCTOR_ARGS_KEY in val else 0
+    )
+
+    item = {
+        "stub_class": key,
+        "boto_class": f"{SERVICE_NAME_SNAKE}.{key}",
+        "base_class": RESOURCE_BASE_CLASS,
+        "fixture_name": f"gen_{xform_name(key)}",
+        "snake_name": xform_name(key),
+        "constructor_args": ",".join(
+            ["random_str()" for _ in range(num_constructor_args)]
+        ),
+    }
+
+    collections = []
+    if COLLECTIONS_KEY in val:
+        collections = get_collections(key, val, item)
+
+    return item, collections
+
+
+def get_resources(folder: Path) -> dict:
+    resources_file = folder.joinpath(RESOURCES_FILE_NAME)
+    with resources_file.open(READ, encoding=UTF_8) as fp:
+        resources_json = json.load(fp)
+
+    result = {
+        "service_resource": {
+            "stub_class": f"{SERVICE_NAME_PASCAL}{RESOURCE_BASE_CLASS}",
+            "boto_class": f"{SERVICE_NAME_SNAKE}.{RESOURCE_BASE_CLASS}",
+            "base_class": RESOURCE_BASE_CLASS,
+            "fixture_name": f"gen_{SERVICE_NAME_SNAKE}_resource",
+            "snake_name": f"{SERVICE_NAME_SNAKE}_resource",
+        },
+        "collections": [],
+        "resources": [],
+    }
+
+    if COLLECTIONS_KEY in resources_json["service"]:
+        result["collections"] = get_collections(
+            RESOURCE_BASE_CLASS, resources_json["service"], result["service_resource"]
+        )
+
+    for key, val in resources_json["resources"].items():
+        item, collections = get_resource(key, val)
+        result["resources"].append(item)
+        result["collections"] += collections
+
+    return result
+
+
 here = Path(__file__).parent
-
-
 boto3_path = Path(inspect.getfile(boto3)).parent
 botocore_path = Path(inspect.getfile(botocore)).parent
 
-data_folder = "data"
-resource_data_folder = boto3_path.joinpath(data_folder)
-client_data_folder = botocore_path.joinpath(data_folder)
 
-collection_suffix = "Collection"
-collections_key = "hasMany"
-resource_base = "ServiceResource"
-collections_base = "ResourceCollection"
-paginator_base = "Paginator"
-waiter_base = "Waiter"
-client_base = "BaseClient"
+resource_data_folder = boto3_path.joinpath(DATA_FOLDER).joinpath(args.service)
+client_data_folder = botocore_path.joinpath(DATA_FOLDER).joinpath(args.service)
 
 
-def get_latest_version(folder: Path) -> str:
-    return max(os.listdir(folder.resolve()))
+has_resources = resource_data_folder.exists()
+data = {
+    "client": {
+        "stub_class": f"{SERVICE_NAME_PASCAL}Client",
+        "boto_class": SERVICE_NAME_PASCAL,
+        "base_class": CLIENT_BASE_CLASS,
+        "fixture_name": f"gen_{SERVICE_NAME_SNAKE}_client",
+        "snake_name": f"{SERVICE_NAME_SNAKE}_client",
+    },
+    "paginators": [],
+    "waiters": [],
+}
 
 
-def get_service_classes(service: str) -> dict:
-    resource_prefix = service
-    client_name = service.upper()
-    other_prefix = client_name
+schema_folder = get_latest_version(client_data_folder)
 
-    return get_client_classes(service, other_prefix) | get_resource_classes(
-        service, resource_prefix, other_prefix
-    )
+data["paginators"] += get_paginators(schema_folder)
+data["waiters"] += get_waiters(schema_folder)
 
-
-def get_resource_classes(service: str, resource_prefix: str, other_prefix: str) -> dict:
-    service_folder = resource_data_folder.joinpath(service)
-    latest = get_latest_version(service_folder)
-    resource_file = service_folder.joinpath(latest).joinpath("resources-1.json")
-
-    classes = {}
-    if resource_file.exists():
-        with resource_file.open("r") as file:
-            resource_data = json.load(file)
-
-        classes = get_resources(resource_prefix, other_prefix, resource_data)
-        classes["collections"] = get_collections(resource_prefix, resource_data)
-    return classes
-
-
-def get_resources(resource_prefix: str, other_prefix: str, model: dict) -> dict:
-    # Start with service resource itself
-    classes = {
-        "service_resource": {
-            "stub_class": f"{other_prefix}{resource_base}",
-            "boto_class": f"{resource_prefix}.{resource_base}",
-            "base_class": resource_base,
-        }
-    }
-    # Map each type under the "resources" key
-    classes["resources"] = [
-        {
-            "stub_class": resource,
-            "boto_class": f"{resource_prefix}.{resource}",
-            "base_class": resource_base,
-            "snake_name": xform_name(resource),
-            "fixture": f"gen_{xform_name(resource)}",
-        }
-        for resource in list(model["resources"].keys())
-    ]
-    return classes
-
-
-def get_collections(service: str, model: dict) -> list[dict[str, str]]:
-    # Collections in the service resource
-    classes = (
-        [
-            {
-                "stub_class": f"{resource_base}{item}{collection_suffix}",
-                "boto_class": f"{service}.{xform_name(item)}{collection_suffix}",
-                "base_class": collections_base,
-                "field": xform_name(item),
-                "parent_fixture": f"{service}_resource",
-                "fixture": f"gen_{xform_name(item)}_collection",
-                "snake_name": xform_name(item),
-            }
-            for item in model["service"][collections_key]
-        ]
-        if collections_key in model["service"]
-        else []
-    )
-    # Collections in other resources
-    for resource, definition in model["resources"].items():
-        if collections_key in definition:
-            classes += [
-                {
-                    "stub_class": f"{resource}{item}{collection_suffix}",
-                    "boto_class": f"{service}.{resource}.{xform_name(item)}{collection_suffix}",
-                    "base_class": collections_base,
-                    "field": xform_name(item),
-                    "fixture": f"gen_{xform_name(item)}_collection",
-                    "parent_fixture": f"gen_{xform_name(resource)}",
-                    "snake_name": xform_name(item),
-                }
-                for item in definition[collections_key]
-            ]
-    return classes
-
-
-def get_client_classes(service: str, prefix: str) -> dict:
-    service_folder = client_data_folder.joinpath(service)
-    latest = get_latest_version(service_folder)
-    waiters_file = service_folder.joinpath(latest).joinpath("waiters-2.json")
-    paginators_file = service_folder.joinpath(latest).joinpath("paginators-1.json")
-
-    with waiters_file.open("r") as file:
-        waiter_data = json.load(file)
-    with paginators_file.open("r") as file:
-        paginator_data = json.load(file)
-
-    classes = {
-        "client": {
-            "stub_class": f"{prefix}Client",
-            "boto_class": prefix,
-            "base_class": client_base,
-        }
-    }
-
-    classes["paginators"] = get_paginators(prefix, paginator_data)
-    classes["waiters"] = get_waiters(prefix, waiter_data)
-    return classes
-
-
-def get_waiters(prefix: str, model: dict) -> list[dict[str, str]]:
-    return [
-        {
-            "stub_class": f"{waiter}{waiter_base}",
-            "boto_class": f"{prefix}.{waiter_base}.{waiter}",
-            "base_class": waiter_base,
-            "snake_name": xform_name(waiter),
-            "fixture": f"gen_{xform_name(waiter)}_waiter",
-        }
-        for waiter in model["waiters"]
-    ]
-
-
-def get_paginators(prefix: str, model: dict) -> list[dict[str, str]]:
-    return [
-        {
-            "stub_class": f"{paginator}{paginator_base}",
-            "boto_class": f"{prefix}.{paginator_base}.{paginator}",
-            "base_class": paginator_base,
-            "snake_name": xform_name(paginator),
-            "fixture": f"gen_{xform_name(paginator)}_paginator",
-        }
-        for paginator in model["pagination"]
-    ]
-
-
-classes = get_service_classes(args.service)
+if has_resources:
+    schema_folder = get_latest_version(resource_data_folder)
+    data |= get_resources(schema_folder)
 
 output_folder = here.parent.joinpath("data")
 output_folder.mkdir(parents=True, exist_ok=True)
 output_file = output_folder.joinpath(f"{args.service}_data.json")
-with output_file.open("w") as fp:
-    json.dump(classes, fp)
+with output_file.open(WRITE, encoding=UTF_8) as fp:
+    json.dump(data, fp)
