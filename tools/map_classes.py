@@ -88,7 +88,7 @@ def get_collections(
             "stub_class": f"{parent['stub_class']}{collection}{COLLECTION_SUFFIX}",
             "boto_class": f"{SERVICE_NAME_SNAKE}.{parent['stub_class']}.{xform_name(collection)}{COLLECTION_SUFFIX}",
             "base_class": COLLECTION_BASE_CLASS,
-            "fixture_name": f"gen_{xform_name(collection)}_collection",
+            "fixture_name": f"gen_{parent['snake_name']}_{xform_name(collection)}_collection",
             "snake_name": xform_name(collection),
             "parent_fixture_name": parent["fixture_name"],
         }
@@ -149,7 +149,7 @@ def get_resources(folder: Path) -> Dict:
                 "stub_class": f"{RESOURCE_BASE_CLASS}{collection}{COLLECTION_SUFFIX}",
                 "boto_class": f"{SERVICE_NAME_SNAKE}.{xform_name(collection)}{COLLECTION_SUFFIX}",
                 "base_class": COLLECTION_BASE_CLASS,
-                "fixture_name": f"gen_{xform_name(collection)}_collection",
+                "fixture_name": f"gen_service_resource_{xform_name(collection)}_collection",
                 "snake_name": xform_name(collection),
                 "parent_fixture_name": result["service_resource"]["fixture_name"],
             }

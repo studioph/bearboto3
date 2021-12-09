@@ -30,12 +30,19 @@ CLASSES_FILE_NAME = f"{args.service}.py"
 
 here = Path(__file__).parent
 
+templates_folder = here.parent.joinpath(TEMPLATE_FOLDER)
+env = Environment(
+    loader=FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True
+)
+template = env.get_template(TEMPLATE_FILE_NAME)
+
 data_folder = here.parent.joinpath(DATA_FOLDER)
 data_file = data_folder.joinpath(DATA_FILE_NAME)
 with data_file.open(READ, encoding=UTF_8) as file:
     data = json.load(file)
 
 HAS_RESOURCES = RESOURCES_KEY in data
+
 
 client_types = sorted(
     [item["stub_class"] for item in data["waiters"]]
@@ -49,11 +56,6 @@ if HAS_RESOURCES:
         + [data["service_resource"]["stub_class"]]
     )
 
-templates_folder = here.parent.joinpath(TEMPLATE_FOLDER)
-env = Environment(
-    loader=FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True
-)
-template_file = env.get_template(TEMPLATE_FILE_NAME)
 
 items = [data["client"], *data["waiters"], *data["paginators"]]
 if HAS_RESOURCES:
@@ -73,7 +75,8 @@ if HAS_RESOURCES:
 
 output_file = here.parent.joinpath("bearboto3").joinpath(CLASSES_FILE_NAME)
 with output_file.open(WRITE, encoding=UTF_8) as file:
-    template_file.stream(**kwargs).dump(file)
+    template.stream(**kwargs).dump(file)
+
 black.format_file_in_place(
     output_file, fast=False, write_back=black.WriteBack.YES, mode=black.FileMode()
 )

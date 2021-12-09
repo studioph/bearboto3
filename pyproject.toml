@@ -27,6 +27,9 @@ build-backend = "poetry.core.masonry.api"
 fail-under = 9
 pyversion = 3.7
 max-line-length = 120
+ignore = [
+    "tests"
+]
 
 [tool.pylint.messages_control]
 disable = [
