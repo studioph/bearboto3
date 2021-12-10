@@ -1,18 +1,18 @@
 import boto3
 import pytest
-from moto import mock_dynamodb
+from moto import mock_dynamodb2
 from tests.utils import random_str
 
 
 @pytest.fixture
 def gen_dynamodb_client(aws_setup):
-    with mock_dynamodb():
+    with mock_dynamodb2():
         yield boto3.client("dynamodb")
 
 
 @pytest.fixture
 def gen_dynamodb_resource(aws_setup):
-    with mock_dynamodb():
+    with mock_dynamodb2():
         yield boto3.resource("dynamodb")
 
 
