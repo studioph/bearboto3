@@ -1,7 +1,7 @@
 import pytest
 from bearboto3.{{ service }} import (
-    {% for item in types%}
-    {{ item }},
+    {% for item in items %}
+    {{ item['stub_class'] }},
     {% endfor %}
 )
 from beartype import beartype
@@ -16,41 +16,41 @@ from beartype.roar import (BeartypeCallHintPepParamException,
 # ============================
 
 
-def test_{{ item['snake_name'] }}_arg_pass({{ item['pass_fixture'] }}):
+def test_{{ item['snake_name'] }}_arg_pass({{ item['fixture_name'] }}):
     @beartype
     def func(param: {{ item['stub_class'] }}):
         pass
 
-    func({{ item['pass_fixture'] }})
+    func({{ item['fixture_name'] }})
 
 
-def test_{{ item['snake_name'] }}_arg_fail({{ item['fail_fixture'] }}):
+def test_{{ item['snake_name'] }}_arg_fail({{ item['fail_fixture_name'] }}):
     with pytest.raises(BeartypeCallHintPepParamException):
 
         @beartype
         def func(param: {{ item['stub_class'] }}):
             pass
 
-        func({{ item['fail_fixture'] }})
+        func({{ item['fail_fixture_name'] }})
 
 
-def test_{{ item['snake_name'] }}_return_pass({{ item['pass_fixture'] }}):
+def test_{{ item['snake_name'] }}_return_pass({{ item['fixture_name'] }}):
     @beartype
     def func() -> {{ item['stub_class'] }}:
-        return {{ item['pass_fixture'] }}
+        return {{ item['fixture_name'] }}
 
-    result = func()
+    func()
 
 
-def test_{{ item['snake_name'] }}_return_fail({{ item['fail_fixture'] }}):
+def test_{{ item['snake_name'] }}_return_fail({{ item['fail_fixture_name'] }}):
     with pytest.raises(
         (BeartypeCallHintPepReturnException, BeartypeDecorHintPep484585Exception)
     ):
 
         @beartype
         def func() -> {{ item['stub_class'] }}:
-            return {{ item['fail_fixture'] }}
+            return {{ item['fail_fixture_name'] }}
 
-        result = func()
+        func()
 
 {% endfor %}
