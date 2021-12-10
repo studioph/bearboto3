@@ -7,9 +7,9 @@ authors = ["Paul <dev@studiop.page>"]
 [tool.poetry.dependencies]
 python = "^3.7"
 beartype = "^0.9.1"
-boto3 = "^1.20.5"
 
 [tool.poetry.dev-dependencies]
+boto3 = "^1.20.5"
 pylint = "^2.11.1"
 pytest = "^6.2.5"
 black = "^21.10b0"
