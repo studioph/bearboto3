@@ -8,7 +8,7 @@ on:
 env:
   MIN_PYTHON_VER: 3.7
   PYTHON_VER_SPLIT: 3.9.0
-  LATEST_PYTHON_VER: 3.10.0
+  LATEST_PYTHON_VER: 3.10
   POETRY_VERSION: 1.1.11
   OS_VERSION: ubuntu-latest
 
@@ -20,7 +20,7 @@ jobs:
         python-version:
           - 3.7
           - 3.9.0
-          - 3.10.0
+          - 3.10
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
@@ -43,7 +43,7 @@ jobs:
         python-version:
           - 3.7
           - 3.9.0
-          - 3.10.0
+          - 3.10
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo

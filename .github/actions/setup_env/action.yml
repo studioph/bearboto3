@@ -17,12 +17,16 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
 
+    - name: Store exact python version
+      run: echo PYTHON_VERSION=$(python3 -c 'import platform; print(platform.python_version())') >> $GITHUB_ENV
+      shell: bash
+
     - name: Attempt load poetry cache
       id: load-poetry-cache
       uses: actions/cache@v2.1.6
       with:
-        path: /opt/hostedtoolcache/Python/${{ inputs.python-version }}/x64
-        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+        path: /opt/hostedtoolcache/Python/${{ env.PYTHON_VERSION }}/x64
+        key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ inputs.poetry-version }}
 
     - name: Install poetry ${{ inputs.poetry-version }}
       if: steps.load-poetry-cache.outputs.cache-hit != 'true'
@@ -35,8 +39,8 @@ runs:
       uses: actions/cache@v2.1.6
       with:
         path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
-        restore-keys: ${{ runner.os }}-${{ inputs.python-version }}-${{ inputs.poetry-version }}-
+        key: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
+        restore-keys: ${{ runner.os }}-${{ env.PYTHON_VERSION }}-${{ inputs.poetry-version }}-
 
     - name: Update lockfile with any changes
       if: steps.load-env-cache.outputs.cache-hit != 'true'
