@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import os
 import random
 from pathlib import Path
 
@@ -45,7 +44,8 @@ def get_random_service():
 def map_fixtures(items):
     for item in items:
         not_this_item = [other for other in items if other is not item]
-        # Some services (like dynamodb), only have 1 resource. Therefore, we must add the fail fixture by hand from another service.
+        # Some services (like dynamodb), only have 1 resource.
+        # Therefore, we must add the fail fixture by hand from another service.
         random_item = (
             random.choice(not_this_item) if not_this_item else {"fixture_name": ""}
         )
