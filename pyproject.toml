@@ -36,7 +36,9 @@ ignore = [
 disable = [
     "missing-module-docstring",
     "missing-function-docstring",
-    "redefined-outer-name"
+    "redefined-outer-name",
+    "too-many-lines",
+    "duplicate-code"
 ]
 
 [tool.pytest.ini_options]
