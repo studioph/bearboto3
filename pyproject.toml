@@ -18,6 +18,7 @@ boto3-stubs = {extras = ["s3", "ec2"], version = "^1.20.5"}
 pytest-cov = "^3.0.0"
 coverage = {extras = ["toml"], version = "^6.1.2"}
 Jinja2 = "^3.0.3"
+pytest-xdist = "^2.4.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -45,7 +46,8 @@ testpaths = [
 addopts = [
     "--cov",
     "--cov-config=pyproject.toml",
-    "--cov-report=term-missing"
+    "--cov-report=term-missing",
+    "--numprocesses=4"
 ]
 
 [tool.coverage.run]
@@ -53,6 +55,12 @@ branch = true
 source = [
     "bearboto3"
 ]
+omit = [
+    'bearboto3/__init__.py'
+]
 
 [tool.coverage.report]
-fail_under = 90
+fail_under = 100
+exclude_lines = [
+    'if TYPE_CHECKING:'
+]
