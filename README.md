@@ -33,8 +33,8 @@ import boto3
 def example(s3: S3Client) -> Bucket:
     return s3.create_bucket(Bucket='mybucket')
 
-s3_client = boto3.client('s3')
-bucket = example(s3_client)
+gen_s3_client = boto3.client('s3')
+bucket = example(gen_s3_client)
 ```
 
 You will be able to have your salmon and eat it too!
@@ -102,7 +102,7 @@ Each type should have the following scenarios covered:
 
 ```python
 @pytest.fixture
-def s3_resource(aws_setup):
+def gen_s3_resource(aws_setup):
     with mock_s3():
         yield boto3.resource('s3')
 ```
