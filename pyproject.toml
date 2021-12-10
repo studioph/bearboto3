@@ -48,7 +48,8 @@ testpaths = [
 addopts = [
     "--cov",
     "--cov-config=pyproject.toml",
-    "--cov-report=term-missing"
+    "--cov-report=term-missing",
+    "--numprocesses=4"
 ]
 
 [tool.coverage.run]
