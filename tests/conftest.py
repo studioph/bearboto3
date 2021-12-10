@@ -3,6 +3,7 @@ import os
 import pytest
 
 import utils
+from ec2.ec2_fixtures import *
 from s3.s3_fixtures import *
 
 AWS_REGION = "us-east-1"  # Moto requires a valid AWS region
