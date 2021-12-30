@@ -11,10 +11,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - 3.7
-          - 3.8
-          - 3.9
-          - 3.10
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
@@ -47,7 +47,8 @@ jobs:
           tags: bearboto3:${{ matrix.python-version }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
-          build-args: 'PYTHON_VERSION=${{ matrix.python-verison }}'
+          build-args: |
+            PYTHON_VERSION=${{ matrix.python-verison }}
 
       - name: Move cache
         run: |
@@ -60,10 +61,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - 3.7
-          - 3.8
-          - 3.9
-          - 3.10
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
     runs-on: ubuntu-latest
     container: bearboto3:${{ matrix.python-version }}
     steps:
@@ -76,10 +77,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - 3.7
-          - 3.8
-          - 3.9
-          - 3.10
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
     runs-on: ubuntu-latest
     container: bearboto3:${{ matrix.python-version }}
     steps:
