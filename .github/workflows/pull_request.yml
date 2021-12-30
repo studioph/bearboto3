@@ -44,7 +44,7 @@ jobs:
           context: .
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: bearboto3:${{ matrix.python-version }}
+          tags: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
           build-args: |
@@ -66,7 +66,7 @@ jobs:
           - '3.9'
           - '3.10'
     runs-on: ubuntu-latest
-    container: bearboto3:${{ matrix.python-version }}
+    container: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
     steps:
       - name: Lint code
         run: pylint bearboto3
@@ -82,7 +82,7 @@ jobs:
           - '3.9'
           - '3.10'
     runs-on: ubuntu-latest
-    container: bearboto3:${{ matrix.python-version }}
+    container: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
     steps:
       - name: Run unit tests
         run: pytest
