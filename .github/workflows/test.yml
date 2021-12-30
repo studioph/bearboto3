@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Lint code
-        run: pylint bearboto3
+        run: poetry run pylint bearboto3
       
       - name: Run unit tests
-        run: pytest
+        run: poetry run pytest
