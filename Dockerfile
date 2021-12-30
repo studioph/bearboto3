@@ -8,7 +8,7 @@ COPY . /repo
 
 WORKDIR /repo
 
-RUN poetry install
+RUN poetry install --remove-untracked
 
 VOLUME /repo
 
