@@ -6,95 +6,89 @@ on:
   workflow_dispatch:
 
 jobs:
-    tmp:
-      runs-on: ubuntu-latest
-      container: ghcr.io/paulhutchings/bearboto3:3.7
-      steps:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
 
-        - name: Clone repo
-          uses: actions/checkout@v2
-        - name: Print CWD
-          run: echo "$PWD"
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: ls
-          run: ls
-  # build:
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       python-version:
-  #         - '3.7'
-  #         - '3.8'
-  #         - '3.9'
-  #         - '3.10'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Clone repo
-  #       uses: actions/checkout@v2
+      - name: Docker Setup Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1.6.0
 
-  #     - name: Login to GitHub Container Registry
-  #       uses: docker/login-action@v1
-  #       with:
-  #         registry: ghcr.io
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.python-version }}
+          restore-keys: ${{ runner.os }}-buildx-
 
-  #     - name: Docker Setup Buildx
-  #       id: buildx
-  #       uses: docker/setup-buildx-action@v1.6.0
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2.7.0
+        with:
+          context: .
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          build-args: |
+            PYTHON_VERSION=${{ matrix.python-version }}
 
-  #     - name: Cache Docker layers
-  #       uses: actions/cache@v2
-  #       with:
-  #         path: /tmp/.buildx-cache
-  #         key: ${{ runner.os }}-buildx-${{ matrix.python-version }}
-  #         restore-keys: ${{ runner.os }}-buildx-
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-  #     - name: Build and push Docker images
-  #       uses: docker/build-push-action@v2.7.0
-  #       with:
-  #         context: .
-  #         builder: ${{ steps.buildx.outputs.name }}
-  #         push: true
-  #         tags: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
-  #         cache-from: type=local,src=/tmp/.buildx-cache
-  #         cache-to: type=local,dest=/tmp/.buildx-cache-new
-  #         build-args: |
-  #           PYTHON_VERSION=${{ matrix.python-version }}
+  lint:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
+    runs-on: ubuntu-latest
+    container: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
 
-  #     - name: Move cache
-  #       run: |
-  #         rm -rf /tmp/.buildx-cache
-  #         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Lint code
+        run: poetry run pylint bearboto3
 
-  # lint:
-  #   needs: build
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       python-version:
-  #         - '3.7'
-  #         - '3.8'
-  #         - '3.9'
-  #         - '3.10'
-  #   runs-on: ubuntu-latest
-  #   container: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
-  #   steps:
-  #     - name: Lint code
-  #       run: poetry run pylint bearboto3
+  test:
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
+    runs-on: ubuntu-latest
+    container: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
 
-  # test:
-  #   needs: lint
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       python-version:
-  #         - '3.7'
-  #         - '3.8'
-  #         - '3.9'
-  #         - '3.10'
-  #   runs-on: ubuntu-latest
-  #   container: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
-  #   steps:
-  #     - name: Run unit tests
-  #       run: poetry run pytest
+      - name: Run unit tests
+        run: poetry run pytest
