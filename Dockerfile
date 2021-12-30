@@ -6,10 +6,12 @@ RUN pip3 install poetry
 
 COPY poetry.lock pyproject.toml /tmp/
 
-RUN poetry config virtualenvs.create false
-
 WORKDIR /tmp
 
 RUN poetry install --remove-untracked
+
+VOLUME /repo
+
+WORKDIR /repo
 
 CMD poetry shell
