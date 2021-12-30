@@ -4,12 +4,12 @@ FROM python:${PYTHON_VERSION}
 
 RUN pip3 install poetry
 
-COPY . /repo
+COPY poetry.lock pyproject.toml /tmp/
 
-WORKDIR /repo
+RUN poetry config virtualenvs.create false
+
+WORKDIR /tmp
 
 RUN poetry install --remove-untracked
-
-VOLUME /repo
 
 CMD poetry shell
