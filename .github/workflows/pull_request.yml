@@ -5,10 +5,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  POETRY_VERSION: 1.1.11
-  OS_VERSION: ubuntu-latest
-
 jobs:
   build:
     strategy:
@@ -51,6 +47,7 @@ jobs:
           tags: bearboto3:${{ matrix.python-version }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
+          build-args: 'PYTHON_VERSION=${{ matrix.python-verison }}'
 
       - name: Move cache
         run: |
@@ -58,6 +55,7 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   lint:
+    needs: build
     strategy:
       fail-fast: false
       matrix:
