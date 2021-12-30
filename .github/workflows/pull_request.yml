@@ -48,7 +48,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
           build-args: |
-            "PYTHON_VERSION=${{ matrix.python-verison }}"
+            PYTHON_VERSION=${{ matrix.python-verison }}
 
       - name: Move cache
         run: |
