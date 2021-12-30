@@ -11,7 +11,13 @@ jobs:
       container: ghcr.io/paulhutchings/bearboto3:3.7
       steps:
         - name: Print CWD
-          run: echo "$PWD" && ls
+          run: echo "$PWD"
+
+        - name: ls
+          run: ls
+
+        - name: print /repo
+          run: ls /repo
   # build:
   #   strategy:
   #     fail-fast: false
