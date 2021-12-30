@@ -2,16 +2,16 @@ ARG PYTHON_VERSION
 
 FROM python:${PYTHON_VERSION}
 
+ARG WORKDIR=/__w/bearboto3/bearboto3
+
 RUN pip3 install poetry
 
-COPY poetry.lock pyproject.toml /tmp/
+COPY . ${WORKDIR}
 
-WORKDIR /tmp
+WORKDIR ${WORKDIR}
+
+VOLUME ${WORKDIR}
+
+RUN poetry config virtualenvs.create false
 
 RUN poetry install --remove-untracked
-
-VOLUME /repo
-
-WORKDIR /repo
-
-CMD poetry shell
