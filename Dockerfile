@@ -10,4 +10,6 @@ WORKDIR /repo
 
 RUN poetry install
 
+VOLUME /repo
+
 CMD poetry shell
