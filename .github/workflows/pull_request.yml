@@ -69,7 +69,7 @@ jobs:
     container: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
     steps:
       - name: Lint code
-        run: pylint bearboto3
+        run: poetry run pylint bearboto3
 
   test:
     needs: lint
@@ -85,4 +85,4 @@ jobs:
     container: ghcr.io/paulhutchings/bearboto3:${{ matrix.python-version }}
     steps:
       - name: Run unit tests
-        run: pytest
+        run: poetry run pytest
