@@ -1,3 +1,5 @@
+# MOVED TO [beartype/bearboto3](https://github.com/beartype/bearboto3)
+
 # bearboto3
 
 This project provides support for using the [boto3](https://github.com/boto/boto3/) library (AWS Python SDK) and associated stub libraries such as [boto3-stubs](https://pypi.org/project/boto3-stubs/) together with [beartype](https://github.com/beartype/beartype/) for runtime type-checking.
